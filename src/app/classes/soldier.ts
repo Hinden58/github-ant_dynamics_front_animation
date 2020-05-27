@@ -19,4 +19,11 @@ export class Soldier extends Ant {
     this._ctx.arc(this._x, this._y, 15, 0, (Math.PI/180)*360, false);this._ctx.stroke();
     this._ctx.fill();
   }
+  draw_xy(x,y):void {
+    this._ctx.beginPath();
+    this._ctx.fillStyle = 'green';
+    this._ctx.arc(x, y, 15, 0, (Math.PI/180)*360, false);this._ctx.stroke();
+    this._ctx.fill();
+  }
+  
 }

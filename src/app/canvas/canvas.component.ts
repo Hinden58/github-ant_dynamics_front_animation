@@ -159,7 +159,7 @@ export class CanvasComponent implements OnInit {
     this.interval = setInterval(() => {
       this.simulationTurn++;
       this.timeleft = 5;
-      this.simulationStep(this.raw_data[this.simulationTurn],this.simulationTurn)
+      /this.simulationStep(this.raw_data[this.simulationTurn],this.simulationTurn)
       //console.log(this.simulationTurn)
     },this.stepTime)
   }
@@ -271,23 +271,32 @@ export class CanvasComponent implements OnInit {
     
     for(const a of this.animal_in_env){
       if(a instanceof(Ant)){
-        if(a._role == Role.SEARCH){
+        if(a._role == Role.SEARCH && a._is_travelling!=0){
           let origin;
           let path;
+          //console.log(a)
           for(const e of this.elem_in_env){
+            //console.log(e._id)
             if(e._id==a._origin){
               origin = e;
-              for(const p of e._list_path){
-                if(p._end==a._element_id){
-                  path=p;
-                }
-              }
             }
           }
+          for(const p of origin._list_path){
+            if(p._end==a._element_id){
+              path=p;
+            }
+          }
+          //console.log(path)
+          //console.log(a)
+          
+          let path_percent = (path._cost - a._is_travelling -( (window.performance.now() - timestamp_start) / this.stepTime) ) / path._cost ;
+          let test = window.performance.now()
+          //console.log("test " +test)
+          let animation_x = origin._x + (a._x-origin._x)* path_percent;
 
-          let animation_x = origin._x + (a._x-origin._x)* ((path.cost-a._is_travelling-( window.performance.now() - timestamp_start / this.stepTime) ) / path.cost )
-          let animation_y = origin._y + (a._y-origin._y)* ((path.cost-a._is_travelling-( window.performance.now() - timestamp_start / this.stepTime) ) / path.cost )
-
+          //console.log(origin._x + " vs " +animation_x)
+          let animation_y = origin._y + (a._y-origin._y)* path_percent;
+          a.draw_xy(animation_x,animation_y);
         }else{
           a.draw()
         }
