@@ -43,11 +43,6 @@ export class CanvasComponent implements OnInit {
   simulationTurn;
 
 
-  //simulation step Data
-  listElem: Element[];
-  listAnimal: Animal[];
-  listPath: Path[];
-
   constructor(
     private dr : DataRecoveryService,
   ) { this.backMaxCoordinate = 20; }
@@ -159,7 +154,7 @@ export class CanvasComponent implements OnInit {
     this.interval = setInterval(() => {
       this.simulationTurn++;
       this.timeleft = 5;
-      /this.simulationStep(this.raw_data[this.simulationTurn],this.simulationTurn)
+      this.simulationStep(this.raw_data[this.simulationTurn],this.simulationTurn)
       //console.log(this.simulationTurn)
     },this.stepTime)
   }
