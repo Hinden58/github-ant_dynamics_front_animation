@@ -39,7 +39,7 @@ export class CanvasComponent implements OnInit {
   //Variable for update cycle
   interval;
   timeleft = 5;
-  stepTime = 2000;
+  stepTime = 500;
   simulationTurn;
 
 
@@ -284,13 +284,13 @@ export class CanvasComponent implements OnInit {
           //console.log(path)
           //console.log(a)
           
-          let path_percent = (path._cost - a._is_travelling -( (window.performance.now() - timestamp_start) / this.stepTime) ) / path._cost ;
+          let path_percent = ( a._is_travelling-path._cost  -( (window.performance.now() - timestamp_start) / this.stepTime) ) / path._cost ;
           let test = window.performance.now()
           //console.log("test " +test)
-          let animation_x = origin._x + (a._x-origin._x)* path_percent;
+          let animation_x = origin._x + (origin._x-a._x)* path_percent;
 
           //console.log(origin._x + " vs " +animation_x)
-          let animation_y = origin._y + (a._y-origin._y)* path_percent;
+          let animation_y = origin._y + (origin._y-a._y)* path_percent;
           a.draw_xy(animation_x,animation_y);
         }else{
           a.draw()
