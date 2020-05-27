@@ -14,6 +14,7 @@ import { Role } from '../classes/role';
 import { componentFactoryResolverProviderDef } from '@angular/compiler/src/view_compiler/provider_compiler';
 import { Anthill } from '../classes/anthill';
 import { Supply } from '../classes/supply';
+import { Ant } from '../classes/ant';
 
 @Component({
   selector: 'app-canvas',
@@ -180,7 +181,7 @@ export class CanvasComponent implements OnInit {
         switch(a.__class__){
           case("Queen"): { 
               let app =  a.__parent__.__parent__;
-              let animal : Queen = new Queen(eid, x, y, 0, app.life, app.life_max,app.size,app.damage, app.hunger,app.hunger_max,app.thirst,app.thirst_max,app.is_travelling,a.__parent__.home,a.__parent__.age,a.__parent__.age_max,this.getRole(a.__parent__.role),this.ctx);
+              let animal : Queen = new Queen(eid, x, y, app.origin,0, app.life, app.life_max,app.size,app.damage, app.hunger,app.hunger_max,app.thirst,app.thirst_max,app.is_travelling,a.__parent__.home,a.__parent__.age,a.__parent__.age_max,this.getRole(a.__parent__.role),this.ctx);
               animal_on_elem.push(animal)
               //animal.draw()
               //console.log(animal) 
@@ -196,7 +197,7 @@ export class CanvasComponent implements OnInit {
           }
           case("Soldier"):{
             let app =  a.__parent__.__parent__;
-             let animal : Soldier = new Soldier(eid, x, y, 0, app.life, app.life_max,app.size,app.damage, app.hunger,app.hunger_max,app.thirst,app.thirst_max,app.is_travelling,a.__parent__.home,a.__parent__.age,a.__parent__.age_max,this.getRole(a.__parent__.role),this.ctx);
+             let animal : Soldier = new Soldier(eid, x, y,app.origin, 0, app.life, app.life_max,app.size,app.damage, app.hunger,app.hunger_max,app.thirst,app.thirst_max,app.is_travelling,a.__parent__.home,a.__parent__.age,a.__parent__.age_max,this.getRole(a.__parent__.role),this.ctx);
              animal_on_elem.push(animal)
              //console.log(animal)
              //animal.draw()
@@ -205,7 +206,7 @@ export class CanvasComponent implements OnInit {
           }
           case("Worker"):{
             let app =  a.__parent__.__parent__;
-             let animal : Worker = new Worker(eid, x, y, 0, app.life, app.life_max,app.size,app.damage, app.hunger,app.hunger_max,app.thirst,app.thirst_max,app.is_travelling,a.__parent__.home,a.__parent__.age,a.__parent__.age_max,this.getRole(a.__parent__.role),a.supply_capacity,this.ctx);
+             let animal : Worker = new Worker(eid, x, y, app.origin,0, app.life, app.life_max,app.size,app.damage, app.hunger,app.hunger_max,app.thirst,app.thirst_max,app.is_travelling,a.__parent__.home,a.__parent__.age,a.__parent__.age_max,this.getRole(a.__parent__.role),a.supply_capacity,this.ctx);
              animal_on_elem.push(animal)
              //console.log(animal)
              //animal.draw()
@@ -267,8 +268,32 @@ export class CanvasComponent implements OnInit {
     for(const e of this.elem_in_env){
       e.draw()
     }
+    
     for(const a of this.animal_in_env){
-      a.draw()
+      if(a instanceof(Ant)){
+        if(a._role == Role.SEARCH){
+          let origin;
+          let path;
+          for(const e of this.elem_in_env){
+            if(e._id==a._origin){
+              origin = e;
+              for(const p of e._list_path){
+                if(p._end==a._element_id){
+                  path=p;
+                }
+              }
+            }
+          }
+
+          let animation_x = origin._x + (a._x-origin._x)* ((path.cost-a._is_travelling-( window.performance.now() - timestamp_start / this.stepTime) ) / path.cost )
+          let animation_y = origin._y + (a._y-origin._y)* ((path.cost-a._is_travelling-( window.performance.now() - timestamp_start / this.stepTime) ) / path.cost )
+
+        }else{
+          a.draw()
+        }
+      }else{
+        a.draw()
+      }
     }
     animationFrame = window.requestAnimationFrame(() => this.showData(timestamp_start,turn));
 
