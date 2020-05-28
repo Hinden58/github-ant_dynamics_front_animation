@@ -41,6 +41,7 @@ export class CanvasComponent implements OnInit {
   timeleft = 5;
   stepTime = 500;
   simulationTurn;
+  dinished = false;
 
 
   constructor(
@@ -49,7 +50,6 @@ export class CanvasComponent implements OnInit {
 
   async ngOnInit() {
     await this.getData();
-    //this.showData();
     if(this.canvas.nativeElement.getContext) {
 
 
@@ -150,11 +150,16 @@ export class CanvasComponent implements OnInit {
 
   startTimer() {
     this.simulationTurn = 0;
-    this.simulationStep(this.raw_data[this.simulationTurn],this.simulationTurn)
+    this.simulationStep(this.raw_data[this.simulationTurn],this.simulationTurn);
     this.interval = setInterval(() => {
       this.simulationTurn++;
       this.timeleft = 5;
-      this.simulationStep(this.raw_data[this.simulationTurn],this.simulationTurn)
+      try{
+        this.simulationStep(this.raw_data[this.simulationTurn],this.simulationTurn);
+      }catch(ex){
+        console.log(ex);
+        clearInterval(this.interval);
+      }
       //console.log(this.simulationTurn)
     },this.stepTime)
   }
@@ -220,7 +225,7 @@ export class CanvasComponent implements OnInit {
         //console.log(path_from_elem)
       }
       let element : Element = new Element(d.id,d.radius,d.capacity,d.capacity_max,x,y,d.pheromone.pheromone_danger,d.pheromone.pheromone_food,d.pheromone.pheromone_recruit,animal_on_elem,path_from_elem,this.ctx);
-      console.log(element)
+      //console.log(element)
       element_in_environment.push(element);
       animal_in_environment=animal_in_environment.concat(animal_on_elem);
       path_in_environment=path_in_environment.concat(path_from_elem);
@@ -238,16 +243,17 @@ export class CanvasComponent implements OnInit {
       let anthill : Anthill = new Anthill(la.name,entrances,colony,la.storage[0],la.storage[1]);
       anthill_in_environment.push(anthill)
     }
-    console.log(element_in_environment)
+    //console.log(element_in_environment)
     this.elem_in_env = element_in_environment;
     console.log(animal_in_environment)
     this.animal_in_env = animal_in_environment;
-    console.log(path_in_environment)
+    //console.log(path_in_environment)
     this.path_in_env = path_in_environment;
-    console.log(anthill_in_environment)
+    //console.log(anthill_in_environment)
     this.anthill_in_env = anthill_in_environment;
     let timestamp_start = window.performance.now()
     //const soldier = new Soldier(0,this.toCanvasHeightCoordinate(5),this.toCanvasWidthCoordinate(5),0,0,0,0,0,0,0,0,0,0,null,0,0,0,this.ctx)
+    //console.log("aniamtion for step " + turn)
     this.showData(timestamp_start,turn)
   }
 
@@ -256,7 +262,7 @@ export class CanvasComponent implements OnInit {
     //console.log(turn)
     if(this.simulationTurn != turn){
       window.cancelAnimationFrame(animationFrame);
-      console.log("stoped previous step animation")
+      //console.log("stoped previous step animation")
       return true
     }
     this.ctx.clearRect(0, 0, this.toCanvasWidthCoordinate(20), this.toCanvasHeightCoordinate(20))
@@ -266,14 +272,19 @@ export class CanvasComponent implements OnInit {
     
     for(const a of this.animal_in_env){
       if(a instanceof(Ant)){
-        if(a._role == Role.SEARCH && a._is_travelling!=0){
+        if(a._is_travelling!=0){
           let origin;
+          let destination;
           let path;
           //console.log(a)
           for(const e of this.elem_in_env){
             //console.log(e._id)
             if(e._id==a._origin){
               origin = e;
+            }else{
+              if(e._id==a._element_id){
+                destination = e;
+              }
             }
           }
           for(const p of origin._list_path){
@@ -287,13 +298,14 @@ export class CanvasComponent implements OnInit {
           let path_percent = ( a._is_travelling-path._cost  -( (window.performance.now() - timestamp_start) / this.stepTime) ) / path._cost ;
           let test = window.performance.now()
           //console.log("test " +test)
-          let animation_x = origin._x + (origin._x-a._x)* path_percent;
+          a._x = origin._x + (origin._x-destination._x)* path_percent;
 
           //console.log(origin._x + " vs " +animation_x)
-          let animation_y = origin._y + (origin._y-a._y)* path_percent;
-          a.draw_xy(animation_x,animation_y);
+          a._y = origin._y + (origin._y-destination._y)* path_percent;
+          a.draw();
         }else{
-          a.draw()
+          a.draw();
+          //console.log(a._role)
         }
       }else{
         a.draw()

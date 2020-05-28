@@ -5,7 +5,7 @@ export class DataRecoveryService {
 
   constructor(private http: HttpClient) { }
 
-  dataUrl = 'https://b75161f7.ngrok.io/sendjson/';
+  dataUrl = 'https://1fed7dbdc8cd.ngrok.io/sendjson/';
 
   getData() {
     return this.http.get(this.dataUrl);
